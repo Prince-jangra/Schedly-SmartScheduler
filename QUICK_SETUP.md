@@ -24,9 +24,9 @@
 
    ```env
    DB_HOST=localhost
-   DB_USER=root
-   DB_PASSWORD=your_password
-   DB_NAME=calendly_clone
+   DB_USER=' '
+   DB_PASSWORD=" '
+   DB_NAME=' '
    JWT_SECRET=your_super_secret_key_12345
    ```
 

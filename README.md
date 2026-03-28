@@ -75,3 +75,9 @@ Result:
 3. Open generated booking link
 4. Select date/time + timezone + email, click **Schedule Meeting**
 5. Verify redirect to **Email Invitation Sent** confirmation page
+
+## Deployment
+- Frontend: Vercel with root directory `client` and output directory `dist-build`
+- Backend: Railway with root directory `server`
+- Database: Railway MySQL
+- Full steps: [DEPLOYMENT.md](C:\Users\princ\OneDrive\Desktop\Assignment_By_Scalar\Calendly_clone\DEPLOYMENT.md)
