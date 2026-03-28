@@ -1,4 +1,4 @@
-# Calendly Clone - Professional Meeting Scheduling Platform
+# Schedly - Professional Meeting Scheduling Platform
 
 A modern, full-stack meeting scheduling application with authentication, event management, and booking system.
 
