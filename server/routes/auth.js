@@ -16,7 +16,10 @@ router.post('/register', (req, res) => {
   }
 
   db.query('SELECT id FROM users WHERE email = ?', [email], (err, existing) => {
-    if (err) return res.status(500).json({ message: 'Server error' })
+    if (err) {
+      console.error('Database error on user check:', err)
+      return res.status(500).json({ message: 'Database error. Please try again.' })
+    }
     if (existing.length > 0) {
       return res.status(400).json({ message: 'Email already registered' })
     }
@@ -29,7 +32,8 @@ router.post('/register', (req, res) => {
       [id, name, email, hash],
       (insertErr) => {
         if (insertErr) {
-          return res.status(500).json({ message: 'Could not create account', error: insertErr.message })
+          console.error('Database error on user insert:', insertErr)
+          return res.status(500).json({ message: 'Could not create account. Email may already exist.' })
         }
 
         const token = jwt.sign({ userId: id }, JWT_SECRET, { expiresIn: '7d' })
