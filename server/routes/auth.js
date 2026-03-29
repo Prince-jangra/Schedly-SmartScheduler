@@ -8,33 +8,42 @@ const JWT_SECRET = require('../jwtSecret')
 router.post('/register', (req, res) => {
   const { name, email, password, confirmPassword } = req.body
 
+  console.log('📝 Registration attempt:', { name, email, timestamp: new Date().toISOString() })
+
   if (!name || !email || !password) {
+    console.log('❌ Missing required fields')
     return res.status(400).json({ message: 'Name, email, and password are required' })
   }
   if (confirmPassword != null && password !== confirmPassword) {
+    console.log('❌ Passwords do not match')
     return res.status(400).json({ message: 'Passwords do not match' })
   }
 
   db.query('SELECT id FROM users WHERE email = ?', [email], (err, existing) => {
     if (err) {
-      console.error('Database error on user check:', err)
-      return res.status(500).json({ message: 'Database error. Please try again.' })
+      console.error('❌ Database error on user check:', err.message, err.code)
+      return res.status(500).json({ message: 'Database error. Please try again.', detail: err.message })
     }
-    if (existing.length > 0) {
+    if (existing && existing.length > 0) {
+      console.log('❌ Email already registered:', email)
       return res.status(400).json({ message: 'Email already registered' })
     }
 
     const id = uuidv4()
     const hash = bcrypt.hashSync(password, 10)
 
+    console.log('🔐 Creating user:', { id, email })
+
     db.query(
       'INSERT INTO users (id, name, email, password, created_at) VALUES (?,?,?,?,NOW())',
       [id, name, email, hash],
       (insertErr) => {
         if (insertErr) {
-          console.error('Database error on user insert:', insertErr)
-          return res.status(500).json({ message: 'Could not create account. Email may already exist.' })
+          console.error('❌ Database error on user insert:', insertErr.message, insertErr.code)
+          return res.status(500).json({ message: 'Could not create account. Email may already exist.', detail: insertErr.message })
         }
+
+        console.log('✅ User created successfully:', email)
 
         const token = jwt.sign({ userId: id }, JWT_SECRET, { expiresIn: '7d' })
         res.json({
