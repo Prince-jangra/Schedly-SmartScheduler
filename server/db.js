@@ -21,7 +21,6 @@ const pool = mysql.createPool({
   queueLimit: 0,
   dateStrings: true,
   enableKeepAlive: true,
-  keepAliveInitialDelayMs: 0,
 })
 
 pool.on('error', (err) => {

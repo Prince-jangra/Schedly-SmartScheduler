@@ -10,17 +10,44 @@ const eventTypeRoutes = require('./routes/eventTypes')
 
 const app = express()
 
-// ✅ CORS FIX (works for both local + production)
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173",
-      "https://schedly-smart-scheduler.vercel.app"
-    ],
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    credentials: true,
-  })
-)
+// ✅ CORS FIX - Dynamic origin checking for production and local
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://localhost:8080",
+  "https://schedly-smart-scheduler.vercel.app",
+  "https://schedly.vercel.app",
+]
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps, curl requests)
+    if (!origin) return callback(null, true)
+    
+    // Check if origin is in allowlist
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true)
+    }
+    
+    // Check if origin contains our domain (for Railway URLs with subdomains)
+    if (
+      origin.includes('vercel.app') ||
+      origin.includes('railway.app') ||
+      origin.includes('localhost')
+    ) {
+      return callback(null, true)
+    }
+    
+    console.warn(`❌ CORS blocked request from: ${origin}`)
+    callback(new Error('CORS: Origin not allowed'))
+  },
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  optionsSuccessStatus: 200,
+}
+
+app.use(cors(corsOptions))
 
 // ✅ Middleware
 app.use(express.json())
