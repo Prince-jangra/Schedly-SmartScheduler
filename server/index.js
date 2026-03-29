@@ -25,9 +25,33 @@ app.use(
 // ✅ Middleware
 app.use(express.json())
 
-// ✅ Health check
-app.get('/health', (_req, res) => {
-  res.json({ ok: true })
+// ✅ Health check with diagnostics
+app.get('/health', (req, res) => {
+  const pool = require('./db')
+  
+  pool.query('SELECT 1', (err) => {
+    if (err) {
+      console.error('Database connection error:', err)
+      return res.status(500).json({ 
+        ok: false, 
+        message: 'Database connection failed',
+        error: err.message,
+        env: {
+          host: process.env.DB_HOST,
+          user: process.env.DB_USER,
+          database: process.env.DB_NAME,
+          hasPassword: !!process.env.DB_PASSWORD
+        }
+      })
+    }
+    
+    res.json({ 
+      ok: true,
+      database: 'connected',
+      environment: process.env.NODE_ENV || 'development',
+      timestamp: new Date().toISOString()
+    })
+  })
 })
 
 // ✅ Routes
